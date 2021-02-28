@@ -42,8 +42,8 @@ namespace CryptoExchange.Server.CryptoProvider
 
         private OrderBook GetOrderBook(OrderBookBitstamp orderBookBitstamp, float priceRangeLimitPercantage)
         {
-            List<PriceQuote> bids = new List<PriceQuote>();
-            List<PriceQuote> asks = new List<PriceQuote>();
+            List<PriceQuoteBid> bids = new List<PriceQuoteBid>();
+            List<PriceQuoteAsk> asks = new List<PriceQuoteAsk>();
 
             decimal bidsSum = 0;
             decimal asksSum = 0;
@@ -57,7 +57,7 @@ namespace CryptoExchange.Server.CryptoProvider
                 if (sourceAsk[priceIndex] > askPriceLimit) {
                     break;
                 }
-                asks.Add(GetPriceQuote(sourceAsk, ref asksSum));
+                asks.Add(GetPriceQuote<PriceQuoteAsk>(sourceAsk, ref asksSum));
             }
 
             foreach (var sourceBid in orderBookBitstamp.Bids) {
@@ -65,7 +65,7 @@ namespace CryptoExchange.Server.CryptoProvider
                     break;
                 }
                 bidsSum += sourceBid[volumeIndex];
-                bids.Add(GetPriceQuote(sourceBid, ref bidsSum));
+                bids.Add(GetPriceQuote<PriceQuoteBid>(sourceBid, ref bidsSum));
             }
 
             return new OrderBook {
@@ -76,10 +76,10 @@ namespace CryptoExchange.Server.CryptoProvider
 
         }
 
-        private PriceQuote GetPriceQuote(decimal[] priceQuote, ref decimal volumeSum)
+        private T GetPriceQuote<T>(decimal[] priceQuote, ref decimal volumeSum) where  T: PriceQuote, new()
         {
             volumeSum += priceQuote[volumeIndex];
-            return new PriceQuote {
+            return new T {
                 Price = priceQuote[priceIndex],
                 Volume = priceQuote[volumeIndex],
                 SumVolume = volumeSum
