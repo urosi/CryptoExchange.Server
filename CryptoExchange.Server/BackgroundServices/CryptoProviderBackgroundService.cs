@@ -1,4 +1,6 @@
 ﻿using CryptoExchange.Server.Classes;
+using CryptoExchange.Server.Configuraiton;
+using CryptoExchange.Server.Configuraitons;
 using CryptoExchange.Server.CryptoProvider;
 using CryptoExchange.Server.Data;
 using CryptoExchange.Server.Hubs;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +20,18 @@ namespace CryptoExchange.Server.BackgroundServices
 {
     public class CryptoProviderBackgroundService : BackgroundService
     {
-        private const int DelayInMs = 2000;
-        private const float PriceRangeLimitPercantage = 1.2F;
-        private const Ticker ticker = Ticker.btceur;
-
         private readonly IHubContext<OrderBookHub, IOrderBookClient> _orderBookHub;
         private readonly ICryptoProvider _cryptoProvider;
         private readonly CryptoExchangeContext _dbContext;
+        private readonly BackgroundServiceConfig _config;
 
-        public CryptoProviderBackgroundService(ICryptoProvider cryptoProvider, IHubContext<OrderBookHub, IOrderBookClient> orderBookHub, IServiceScopeFactory factory)
+        public CryptoProviderBackgroundService(ICryptoProvider cryptoProvider, IHubContext<OrderBookHub, IOrderBookClient> orderBookHub, IServiceScopeFactory factory, IOptions<BackgroundServiceConfig> config)
         {
             _orderBookHub = orderBookHub;
             _cryptoProvider = cryptoProvider;
-            _dbContext = factory.CreateScope().ServiceProvider.GetRequiredService<CryptoExchangeContext>();
+            _config = config.Value;
+
+           _dbContext = factory.CreateScope().ServiceProvider.GetRequiredService<CryptoExchangeContext>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,15 +42,17 @@ namespace CryptoExchange.Server.BackgroundServices
                 {
                     try 
                     {
-                        var orderBook = await _cryptoProvider.GetOrderBook(ticker, PriceRangeLimitPercantage);
-                        _dbContext.OrderBook.Add(orderBook);
-                        _dbContext.SaveChanges();
+                        var orderBook = await _cryptoProvider.GetOrderBook(_config.Ticker, _config.PriceRangeLimitPercantage);
+                        orderBook.Ticker = _config.Ticker;
+
+                        StoreOrderBook(orderBook);
+                       
                         var orderBookBroadcast = new OrderBookBroadcast(orderBook);
                         await _orderBookHub.Clients.All.BroadcastOrderBook(orderBookBroadcast);
                     } 
                     catch (Exception ex) 
                     {
-                        Console.WriteLine("Error in ExecuteAsync" + ex.ToString());
+                        Console.WriteLine("Error in CryptoProviderBackgroundService.ExecuteAsync:" + ex.ToString());
                     }
                 }
                 else
@@ -56,9 +60,14 @@ namespace CryptoExchange.Server.BackgroundServices
                     Console.WriteLine("There are no clients connected.");
                 }
 
-                await Task.Delay(DelayInMs);
+                await Task.Delay(_config.IntervalInMs);
             }
         }
 
+        private void StoreOrderBook(OrderBook orderBook)
+        {
+            _dbContext.OrderBook.Add(orderBook);
+            _dbContext.SaveChanges();
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using CryptoExchange.Server.Classes;
+using CryptoExchange.Server.Configuraiton;
 using CryptoExchange.Server.Model;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,10 +14,17 @@ namespace CryptoExchange.Server.CryptoProvider
 {
     public class CryptoProviderBitstamp : ICryptoProvider
     {
+        BitstampConfig _config;
+        Uri _baseAddress;
+
         const int priceIndex = 0;
         const int volumeIndex = 1;
 
-        Uri _baseAddress = new Uri("https://www.bitstamp.net/");
+        public CryptoProviderBitstamp(IOptions<BitstampConfig> config)
+        {
+            _config = config.Value;
+            _baseAddress = new Uri(_config.BaseUrl);
+        }
 
         public async Task<OrderBook> GetOrderBook(Ticker ticker, float priceRangeLimitPercantage)
         {
@@ -26,7 +35,7 @@ namespace CryptoExchange.Server.CryptoProvider
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync($"api/v2/order_book/{ticker}");
+                HttpResponseMessage response = await client.GetAsync($"{_config.OrderBookUrl}{ticker}");
 
                 if (response.IsSuccessStatusCode) {
                     var content = await response.Content.ReadAsStringAsync();

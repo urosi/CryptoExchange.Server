@@ -1,19 +1,15 @@
 using CryptoExchange.Server.BackgroundServices;
+using CryptoExchange.Server.Configuraiton;
+using CryptoExchange.Server.Configuraitons;
 using CryptoExchange.Server.CryptoProvider;
 using CryptoExchange.Server.Data;
 using CryptoExchange.Server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using System.Configuration;
 
 namespace CryptoExchange.Server
 {
@@ -30,6 +26,9 @@ namespace CryptoExchange.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<BitstampConfig>(Configuration.GetSection(BitstampConfig.SECTION));
+            services.Configure<BackgroundServiceConfig>(Configuration.GetSection(BackgroundServiceConfig.SECTION));
+
             services.AddDbContext<CryptoExchangeContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 

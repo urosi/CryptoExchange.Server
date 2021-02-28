@@ -1,4 +1,5 @@
-﻿using CryptoExchange.Server.Model;
+﻿using CryptoExchange.Server.Classes;
+using CryptoExchange.Server.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace CryptoExchange.Server.BackgroundServices
     public class OrderBookBroadcast
     {
         public float Timestamp { get; private set; }
+        public string TickerDisplay { get; set; }
         public decimal[][] Bids { get; private set; }
         public decimal[][] Asks { get; private set; }
 
@@ -26,6 +28,7 @@ namespace CryptoExchange.Server.BackgroundServices
             }
 
             Timestamp = orderBook.Timestamp;
+            TickerDisplay = Helper.TickerDisplay[orderBook.Ticker];
             Asks = asks.ToArray();
             Bids = bids.ToArray();
         }
