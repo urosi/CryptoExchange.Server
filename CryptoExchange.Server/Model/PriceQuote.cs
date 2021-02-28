@@ -2,8 +2,8 @@
 {
     public class PriceQuote
     {
-        public float Price { get; set; } 
-        public float Volume { get; set; }
-        public float SumVolume { get; set; }
+        public decimal Price { get; set; } 
+        public decimal Volume { get; set; }
+        public decimal SumVolume { get; set; }
     }
 }

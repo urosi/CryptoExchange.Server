@@ -13,8 +13,8 @@ namespace CryptoExchange.Server.BackgroundServices
 {
     public class StockProviderBackgroundService : BackgroundService
     {
-        const int delay = 2000;
-        private const int priceRange = 500;
+        private const int DelayInMs = 2000;
+        private const float PriceRangeLimitPercantage = 1.2F;
 
         private readonly IHubContext<OrderBookHub, IOrderBookClient> _orderBookHub;
         private readonly ICryptoProvider _cryptoProvider;
@@ -29,16 +29,17 @@ namespace CryptoExchange.Server.BackgroundServices
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                Console.WriteLine("background service loop");
-
-                try { 
-                var orderBook = await _cryptoProvider.GetOrderBook(Classes.Ticker.btceur, priceRange);
-                var orderBookBroadcast = new OrderBookBroadcast(orderBook);
-                await _orderBookHub.Clients.All.BroadcastOrderBook(orderBookBroadcast);
-                } catch (Exception ex) {
+                try
+                {
+                    var orderBook = await _cryptoProvider.GetOrderBook(Classes.Ticker.btceur, PriceRangeLimitPercantage); 
+                    var orderBookBroadcast = new OrderBookBroadcast(orderBook);
+                    await _orderBookHub.Clients.All.BroadcastOrderBook(orderBookBroadcast);
+                } 
+                catch (Exception ex)
+                {
                     Console.WriteLine("Error in ExecuteAsync" + ex.ToString());
                 }
-                await Task.Delay(delay);
+                await Task.Delay(DelayInMs);
             }
         }
 

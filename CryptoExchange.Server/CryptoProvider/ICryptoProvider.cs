@@ -9,6 +9,6 @@ namespace CryptoExchange.Server.CryptoProvider
 {
     public interface ICryptoProvider
     {
-        public Task<OrderBook> GetOrderBook(Ticker ticker, int priceRange);
+        public Task<OrderBook> GetOrderBook(Ticker ticker, float priceRangeLimitPercantage);
     }
 }

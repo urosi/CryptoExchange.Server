@@ -9,25 +9,25 @@ namespace CryptoExchange.Server.BackgroundServices
     public class OrderBookBroadcast
     {
         public float Timestamp { get; private set; }
-        public float[][] Bids { get; private set; }
-        public float[][] Asks { get; private set; }
+        public decimal[][] Bids { get; private set; }
+        public decimal[][] Asks { get; private set; }
 
         public OrderBookBroadcast(OrderBook orderBook)
         {
-            List<float[]> asks = new List<float[]>();
-            List<float[]> bids = new List<float[]>();
+            List<decimal[]> asks = new List<decimal[]>();
+            List<decimal[]> bids = new List<decimal[]>();
 
             foreach(var sourceAsks in orderBook.Asks) {
-                asks.Add(new float[] { sourceAsks.Price, sourceAsks.SumVolume });
+                asks.Add(new decimal[] { sourceAsks.Price, sourceAsks.SumVolume });
             }
 
             foreach(var sourceBids in orderBook.Bids) {
-                bids.Add(new float[] { sourceBids.Price, sourceBids.SumVolume });
+                bids.Add(new decimal[] { sourceBids.Price, sourceBids.SumVolume });
             }
 
-            Bids = bids.ToArray();
-            Asks = asks.ToArray();
             Timestamp = orderBook.Timestamp;
+            Asks = asks.ToArray();
+            Bids = bids.ToArray();
         }
     }
 }

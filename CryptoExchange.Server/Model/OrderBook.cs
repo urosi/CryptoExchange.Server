@@ -9,7 +9,6 @@ namespace CryptoExchange.Server.Model
     public class OrderBook
     {
         public long Timestamp { get; set; }
-        public decimal Price { get; set; }
         public Ticker Ticker { get; set; }
         public PriceQuote[] Bids { get; set; }
         public PriceQuote[] Asks { get; set; }

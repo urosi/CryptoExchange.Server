@@ -8,7 +8,7 @@ namespace CryptoExchange.Server.CryptoProvider
     public class OrderBookBitstamp
     {
         public long Microtimestamp { get; set; }
-        public float[][] Bids { get; set; }
-        public float[][] Asks { get; set; }
+        public decimal[][] Bids { get; set; }
+        public decimal[][] Asks { get; set; }
     }
 }
