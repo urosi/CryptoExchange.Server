@@ -31,11 +31,11 @@ namespace CryptoExchange.Server
             services.AddControllers();
             services.AddSignalR();
             
-            services.AddSingleton<StockProviderBackgroundService>();
+            services.AddSingleton<CryptoProviderBackgroundService>();
 
             services.AddSingleton<ICryptoProvider, CryptoProviderBitstamp>();
 
-            services.AddHostedService<BackgroundServiceStarter<StockProviderBackgroundService>>();
+            services.AddHostedService<BackgroundServiceStarter<CryptoProviderBackgroundService>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
