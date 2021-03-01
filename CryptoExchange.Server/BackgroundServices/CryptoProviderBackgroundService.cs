@@ -45,7 +45,10 @@ namespace CryptoExchange.Server.BackgroundServices
                         var orderBook = await _cryptoProvider.GetOrderBook(_config.Ticker, _config.PriceRangeLimitPercantage);
                         orderBook.Ticker = _config.Ticker;
 
-                        StoreOrderBook(orderBook);
+                        if (_config.LogDb)
+                        {
+                            StoreOrderBook(orderBook);
+                        }
                        
                         var orderBookBroadcast = new OrderBookBroadcast(orderBook);
                         await _orderBookHub.Clients.All.BroadcastOrderBook(orderBookBroadcast);

@@ -13,5 +13,6 @@ namespace CryptoExchange.Server.Configuraitons
         public int IntervalInMs { get; set; } 
         public float PriceRangeLimitPercantage { get; set; }
         public Ticker Ticker { get; set; }
+        public bool LogDb { get; set; }
     }
 }
