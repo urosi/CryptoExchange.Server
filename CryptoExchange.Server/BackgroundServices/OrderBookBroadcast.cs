@@ -9,6 +9,7 @@ namespace CryptoExchange.Server.BackgroundServices
 {
     public class OrderBookBroadcast
     {
+        const int PriceIndex = 0;
         public float Timestamp { get; private set; }
         public string TickerDisplay { get; set; }
         public decimal[][] Bids { get; private set; }
@@ -19,11 +20,11 @@ namespace CryptoExchange.Server.BackgroundServices
             List<decimal[]> asks = new List<decimal[]>();
             List<decimal[]> bids = new List<decimal[]>();
 
-            foreach(var sourceAsks in orderBook.Asks) {
+            foreach(var sourceAsks in orderBook.Asks.OrderBy(arr => arr.Price)) {
                 asks.Add(new decimal[] { sourceAsks.Price, sourceAsks.SumVolume });
             }
 
-            foreach(var sourceBids in orderBook.Bids) {
+            foreach(var sourceBids in orderBook.Bids.OrderBy(arr => arr.Price)) {
                 bids.Add(new decimal[] { sourceBids.Price, sourceBids.SumVolume });
             }
 
